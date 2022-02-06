@@ -130,3 +130,25 @@ exports.getOneUser = BigPromise(async (req, res, next) => {
     user,
   });
 });
+
+exports.restoreUser = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(new CustomError('User not found!', 404, res));
+  }
+  await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      isDeleted: false,
+    },
+    {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    }
+  );
+  res.status(200).json({
+    success: true,
+    message: 'User restored successfully!',
+  });
+});
