@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  createedBy: {
+  createdBy: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
   },
