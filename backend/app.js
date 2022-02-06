@@ -23,5 +23,6 @@ app.use(
 app.use(morgan('tiny'));
 
 //Import all other routes
+app.use('/api', require('./routes/User'));
 
 module.exports = app;
