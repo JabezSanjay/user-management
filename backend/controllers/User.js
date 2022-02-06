@@ -89,3 +89,66 @@ exports.updateUser = BigPromise(async (req, res, next) => {
     message: 'User updated successfully!',
   });
 });
+
+exports.deleteUser = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(new CustomError('User not found!', 404, res));
+  }
+  await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      isDeleted: true,
+    },
+    {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    }
+  );
+  res.status(200).json({
+    success: true,
+    message: 'User deleted successfully!',
+  });
+});
+
+exports.getAllUsers = BigPromise(async (req, res, next) => {
+  const users = await User.find({ isDeleted: false });
+  res.status(200).json({
+    success: true,
+    users,
+  });
+});
+
+exports.getOneUser = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(new CustomError('User not found!', 404, res));
+  }
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+exports.restoreUser = BigPromise(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(new CustomError('User not found!', 404, res));
+  }
+  await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      isDeleted: false,
+    },
+    {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    }
+  );
+  res.status(200).json({
+    success: true,
+    message: 'User restored successfully!',
+  });
+});
