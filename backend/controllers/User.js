@@ -53,3 +53,39 @@ exports.createUser = BigPromise(async (req, res, next) => {
     message: 'User created successfully',
   });
 });
+
+exports.updateUser = BigPromise(async (req, res, next) => {
+  const { name, email, dateOfBirth, country } = req.body;
+  const { id } = req.params;
+  const updatedData = {
+    name,
+    email,
+    dateOfBirth,
+    country,
+  };
+  if (req.files) {
+    const user = await User.findById(id);
+    await cloudinary.v2.uploader.destroy(user.photo.id);
+    const updatedPhoto = await cloudinary.v2.uploader.upload(
+      req.files.photo.tempFilePath,
+      {
+        folder: 'user-management-users',
+        width: 150,
+        crop: 'scale',
+      }
+    );
+    updatedData.photo = {
+      id: updatedPhoto.public_id,
+      secureUrl: updatedPhoto.secure_url,
+    };
+  }
+  await User.findByIdAndUpdate(id, updatedData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+  res.status(200).json({
+    success: true,
+    message: 'User updated successfully!',
+  });
+});
