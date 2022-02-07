@@ -120,6 +120,14 @@ exports.getAllUsers = BigPromise(async (req, res, next) => {
   });
 });
 
+exports.getAllDeletedUsers = BigPromise(async (req, res, next) => {
+  const users = await User.find({ isDeleted: true });
+  res.status(200).json({
+    success: true,
+    users,
+  });
+});
+
 exports.getOneUser = BigPromise(async (req, res, next) => {
   const user = await User.findById(req.params.id);
   if (!user) {
