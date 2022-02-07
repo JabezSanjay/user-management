@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from 'primereact/button';
 import { useSelector } from 'react-redux';
+import imagePlaceholder from '../../images/blank_profile.png';
 
 const Card = ({
   image,
@@ -19,9 +20,9 @@ const Card = ({
     <div className='m-4 px-8 py-4 mx-auto mt-16 bg-white rounded-lg shadow-lg'>
       <div className='flex justify-center -mt-16 md:justify-end'>
         <img
-          className='object-cover w-20 h-20 border-2 border-green-700 rounded-full'
+          className='object-cover w-20 h-20 border-2 p-1 border-green-700 rounded-full'
           alt='Testimonial avatar'
-          src={`${image}`}
+          src={`${image === undefined ? imagePlaceholder : image}`}
         />
       </div>
 

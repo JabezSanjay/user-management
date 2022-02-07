@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import axios from '../../axiosConfig';
 import {
   getUsersInProgress,
@@ -68,7 +69,9 @@ export const updateUser = async (dispatch, data, id) => {
     dispatch(updateUserSuccess());
     return response.data;
   } catch (error) {
+    toast.error('Something went wrong!');
     dispatch(updateUserFailure());
+    return error;
   }
 };
 

@@ -64,10 +64,11 @@ const Form = ({ openModal, setOpenModal, update, id, loading }) => {
         if (response.success) {
           toast.success(response.message);
           reset();
-          setOpenModal(false);
-        } else {
-          toast.error(response.message);
         }
+        if (response.error) {
+          toast.error('Something went wrong!');
+        }
+        setOpenModal(false);
       });
     } else {
       await createUser(dispatch, formData).then((response) => {
