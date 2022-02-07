@@ -2,34 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from 'primereact/button';
 import Card from '../components/Card';
-import { createUser, getUsers } from './helpers';
+import { deleteUser, getUsers } from './helpers';
 import Form from '../components/Form';
-import { toast } from 'react-toastify';
 
 const Home = () => {
-  let formData = new FormData();
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
+  const [update, setUpdate] = useState({
+    id: '',
+    state: false,
+  });
   useEffect(() => {
     getUsers(dispatch);
   }, [dispatch, user.reload]);
-  const onSubmit = async (data) => {
-    //TODO: NEED TO FIND ANOTHER WAY TO DO THIS
-    formData.append('name', data.name);
-    formData.append('email', data.email);
-    formData.append('dateOfBirth', data.dateOfBirth);
-    formData.append('country', data.country);
-    formData.append('photo', data['photo'][0]);
-    await createUser(dispatch, formData).then((response) => {
-      if (response.success) {
-        toast.success(response.message);
-        setOpenModal(false);
-      } else {
-        toast.error(response.message);
-      }
-    });
-  };
+
   return (
     <>
       <div className='flex justify-end m-10'>
@@ -38,24 +25,43 @@ const Home = () => {
           icon='pi pi-plus'
           onClick={() => {
             setOpenModal(!openModal);
+            setUpdate({
+              state: false,
+              id: '',
+            });
           }}
         />
-        <Form
-          openModal={openModal}
-          setOpenModal={setOpenModal}
-          onSubmit={onSubmit}
-        />
+        {openModal && (
+          <Form
+            openModal={openModal}
+            setOpenModal={setOpenModal}
+            update={update.state}
+            id={update.id}
+            loading={update.state ? user.updateLoading : user.createLoading}
+          />
+        )}
       </div>
       <div className='flex flex-wrap justify-evenly gap-6'>
-        {user.users.map((user) => (
-          <Card
-            key={user._id}
-            image={user?.photo?.secureUrl}
-            name={user.name}
-            age={user.age}
-            email={user.email}
-          />
-        ))}
+        {user.users.map(
+          (user) =>
+            !user.isDeleted && (
+              <Card
+                key={user._id}
+                id={user._id}
+                image={user?.photo?.secureUrl}
+                name={user.name}
+                age={user.age}
+                email={user.email}
+                openModal={openModal}
+                setOpenModal={setOpenModal}
+                setUpdate={setUpdate}
+                home={true}
+                onDelete={() => {
+                  deleteUser(dispatch, user._id);
+                }}
+              />
+            )
+        )}
       </div>
     </>
   );

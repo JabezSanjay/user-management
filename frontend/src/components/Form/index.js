@@ -1,11 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import Input from '../Input';
+import moment from 'moment';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { createUser, getOneUser, updateUser } from '../../pages/helpers';
+import { clearOneUser } from '../../redux/reducers/userReducer';
+import { toast } from 'react-toastify';
 
 const schema = yup
   .object({
@@ -22,12 +26,23 @@ const schema = yup
   })
   .required();
 
-const Form = ({ openModal, setOpenModal, onSubmit }) => {
+const Form = ({ openModal, setOpenModal, update, id, loading }) => {
+  let formData = new FormData();
+  const [user, setUser] = useState({});
+  const dispatch = useDispatch();
   useEffect(() => {
+    if (update) {
+      const fetchData = async () => {
+        setUser(await getOneUser(dispatch, id));
+      };
+      fetchData();
+    } else {
+      clearOneUser(dispatch);
+    }
     reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
-  const user = useSelector((state) => state.user);
+
   const {
     register,
     handleSubmit,
@@ -35,24 +50,50 @@ const Form = ({ openModal, setOpenModal, onSubmit }) => {
     reset,
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: {
-      email: '',
-      name: '',
-      dateOfBirth: '',
-      country: '',
-      photo: '',
-    },
   });
+
+  const onSubmit = async (data) => {
+    //TODO: NEED TO FIND ANOTHER WAY TO DO THIS
+    formData.append('name', data.name);
+    formData.append('email', data.email);
+    formData.append('dateOfBirth', data.dateOfBirth);
+    formData.append('country', data.country);
+    formData.append('photo', data['photo'][0]);
+    if (update) {
+      await updateUser(dispatch, formData, id).then((response) => {
+        if (response.success) {
+          toast.success(response.message);
+          reset();
+          setOpenModal(false);
+        } else {
+          toast.error(response.message);
+        }
+      });
+    } else {
+      await createUser(dispatch, formData).then((response) => {
+        if (response.success) {
+          toast.success(response.message);
+          setOpenModal(false);
+        } else {
+          toast.error(response.message);
+        }
+      });
+    }
+  };
 
   return (
     <Dialog
-      header='Create User'
-      visible={openModal}
+      header={update ? 'Update User' : 'Create User'}
+      visible={user.success || !update ? openModal : false}
       modal={true}
-      onHide={() => setOpenModal(!openModal)}
+      onHide={() => {
+        setOpenModal(!openModal);
+        setUser({});
+        clearOneUser(dispatch);
+      }}
       className='lg:w-[50%] w-[75%]'
     >
-      <form>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Input
           type='text'
           name='Name'
@@ -62,6 +103,7 @@ const Form = ({ openModal, setOpenModal, onSubmit }) => {
           errorText={errors.name?.message}
           register={register}
           error={errors}
+          value={update ? user.user?.name : ''}
         />
         <Input
           type='email'
@@ -72,6 +114,7 @@ const Form = ({ openModal, setOpenModal, onSubmit }) => {
           errorText={errors.email?.message}
           register={register}
           error={errors}
+          value={update ? user.user?.email : ''}
         />
         <Input
           type='text'
@@ -82,6 +125,7 @@ const Form = ({ openModal, setOpenModal, onSubmit }) => {
           errorText={errors.country?.message}
           register={register}
           error={errors}
+          value={update ? user.user?.country : ''}
         />
         <Input
           type='date'
@@ -92,6 +136,9 @@ const Form = ({ openModal, setOpenModal, onSubmit }) => {
           errorText={errors.dateOfBirth?.message}
           register={register}
           error={errors}
+          value={
+            update ? moment(user.user?.dateOfBirth).format('YYYY-MM-DD') : ''
+          }
         />
         <Input
           type='file'
@@ -104,11 +151,10 @@ const Form = ({ openModal, setOpenModal, onSubmit }) => {
         />
 
         <Button
-          label='Create User'
+          label={update ? 'Update' : 'Create'}
           type='submit'
-          onClick={handleSubmit(onSubmit)}
           style={{ marginTop: '20px', width: '100%' }}
-          loading={user.loading}
+          loading={loading}
         />
       </form>
     </Dialog>

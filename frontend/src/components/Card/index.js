@@ -1,7 +1,20 @@
 import React from 'react';
 import { Button } from 'primereact/button';
+import { useSelector } from 'react-redux';
 
-const Card = ({ image, name, age, email }) => {
+const Card = ({
+  image,
+  name,
+  age,
+  email,
+  setUpdate,
+  setOpenModal,
+  id,
+  onDelete,
+  onRestore,
+  home,
+}) => {
+  const user = useSelector((state) => state.user);
   return (
     <div className='m-4 px-8 py-4 mx-auto mt-16 bg-white rounded-lg shadow-lg'>
       <div className='flex justify-center -mt-16 md:justify-end'>
@@ -17,14 +30,45 @@ const Card = ({ image, name, age, email }) => {
       </h2>
       <p className='text-green-600'>{email}</p>
 
-      <div className='flex justify-around gap-x-6 mt-4'>
-        <Button label='Update' icon='pi pi-check' />
-        <Button
-          label='Update'
-          icon='pi pi-minus-circle'
-          className='p-button-danger'
-        />
-      </div>
+      {home ? (
+        <div className='flex justify-around gap-x-6 mt-4'>
+          <Button
+            label='Update'
+            icon='pi pi-check'
+            onClick={() => {
+              setUpdate({
+                state: true,
+                id: id,
+              });
+              setOpenModal(true);
+            }}
+            loading={user.readLoading}
+          />
+          <Button
+            label='Delete'
+            icon='pi pi-minus-circle'
+            className='p-button-danger'
+            loading={user.deleteLoading}
+            onClick={onDelete}
+          />
+        </div>
+      ) : (
+        <div className='flex justify-around gap-x-6 mt-4'>
+          <Button
+            label='View'
+            icon='pi pi-eye'
+            loading={user.deleteLoading}
+            onClick={onRestore}
+            disabled
+          />
+          <Button
+            label='Restore'
+            icon='pi pi-check'
+            loading={user.deleteLoading}
+            onClick={onRestore}
+          />
+        </div>
+      )}
     </div>
   );
 };

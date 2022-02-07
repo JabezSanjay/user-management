@@ -7,6 +7,7 @@ const Input = ({
   error,
   formInputName,
   register,
+  value,
   errorText,
 }) => {
   return (
@@ -20,6 +21,7 @@ const Input = ({
           console.log(e.target.value);
         }}
         {...register(formInputName)}
+        defaultValue={value}
       />
       {error ? <p className='text-xs text-red-700 mt-1'>{errorText}</p> : null}
     </div>

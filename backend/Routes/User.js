@@ -4,6 +4,7 @@ const {
   updateUser,
   deleteUser,
   getAllUsers,
+  getAllDeletedUsers,
   getOneUser,
   restoreUser,
 } = require('../controllers/User');
@@ -13,6 +14,7 @@ const router = express.Router();
 router.route('/user/create').post(createUser);
 //Read users or user
 router.route('/users').get(getAllUsers);
+router.route('/users/deleted').get(getAllDeletedUsers);
 router.route('/user/:id').get(getOneUser);
 //Update user
 router.route('/user/update/:id').put(updateUser);

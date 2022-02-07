@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
@@ -31,14 +32,14 @@ const Navbar = () => {
         </a>
         <ul class='flex items-center space-x-8 lg:flex'>
           <li>
-            <a
-              href='/'
+            <Link
+              to='/trash'
               aria-label='Recycle Bin'
               title='Recycle Bin'
               class='font-medium tracking-wide text-white transition-colors duration-200 hover:text-emerald-50'
             >
               Recycle Bin
-            </a>
+            </Link>
           </li>
         </ul>
       </div>
