@@ -20,23 +20,37 @@ const Trash = () => {
         onClick={() => navigate(-1)}
         style={{ margin: '3rem' }}
       />
-      <div className='flex flex-wrap justify-evenly gap-6'>
-        {user.users.map(
-          (user) =>
-            user.isDeleted && (
-              <Card
-                key={user._id}
-                id={user._id}
-                image={user?.photo?.secureUrl}
-                name={user.name}
-                age={user.age}
-                email={user.email}
-                home={false}
-                onRestore={() => restoreUser(dispatch, user._id)}
-              />
-            )
-        )}
-      </div>
+      {user.readLoading ? (
+        <div className='flex justify-center'>
+          <i
+            className='pi pi-spin pi-spinner text-green-600'
+            style={{ fontSize: '2em' }}
+          ></i>
+        </div>
+      ) : (
+        <div className='flex flex-wrap justify-evenly gap-6'>
+          {user.users.map(
+            (user) =>
+              user.isDeleted && (
+                <Card
+                  key={user._id}
+                  id={user._id}
+                  image={user?.photo?.secureUrl}
+                  name={user.name}
+                  age={user.age}
+                  email={user.email}
+                  home={false}
+                  onRestore={() => restoreUser(dispatch, user._id)}
+                />
+              )
+          )}
+        </div>
+      )}
+      {user.users.length === 0 && !user.readLoading && (
+        <div className='flex justify-center'>
+          <h1>No users deleted!</h1>
+        </div>
+      )}
     </>
   );
 };
